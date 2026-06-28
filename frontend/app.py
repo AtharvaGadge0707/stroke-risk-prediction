@@ -7,18 +7,18 @@ import shap
 import joblib
 from pathlib import Path
 
-# ── Page config ──────────────────────────────────────────────────────────────
+#Page config
 st.set_page_config(
     page_title = "Stroke Risk Predictor",
     page_icon  = "🧠",
     layout     = "wide"
 )
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+#Constants
 API_URL    = "http://localhost:8000/predict"
 HEALTH_URL = "http://localhost:8000/health"
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
+#Custom CSS 
 st.markdown("""
 <style>
     .main-title {
@@ -78,11 +78,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── Header ────────────────────────────────────────────────────────────────────
+#Header
 st.markdown('<p class="main-title">🧠 Stroke Risk Predictor</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Enter patient clinical data to assess stroke risk using XGBoost + SHAP explainability</p>', unsafe_allow_html=True)
 
-# ── API Health check ──────────────────────────────────────────────────────────
+#API Health check 
 try:
     health = requests.get(HEALTH_URL, timeout=3).json()
     st.success(f"✅ Model online — {health['model']} | ROC-AUC: {health['roc_auc']:.4f} | Threshold: {health['threshold']:.4f}")
@@ -92,7 +92,7 @@ except:
 
 st.divider()
 
-# ── Sidebar — Input form ──────────────────────────────────────────────────────
+#Sidebar-Input form
 with st.sidebar:
     st.header("🩺 Patient Information")
     st.caption("Fill in all fields and click Predict")
@@ -117,7 +117,6 @@ with st.sidebar:
     predict_btn = st.button("🔍 Predict Stroke Risk", type="primary")
 
 
-# ── Main content ──────────────────────────────────────────────────────────────
 col1, col2 = st.columns([1, 1.5])
 
 with col1:
@@ -167,7 +166,7 @@ with col2:
                 shap_values  = result["shap_values"]
                 base_value   = result["base_value"]
 
-                # ── Risk card ─────────────────────────────────────────────
+                #Risk card
                 css_class = {
                     "High"  : "risk-high",
                     "Medium": "risk-medium",
@@ -186,7 +185,6 @@ with col2:
                 </div>
                 """, unsafe_allow_html=True)
 
-                # ── Risk interpretation ───────────────────────────────────
                 if risk_label == "High":
                     st.error("⚠️ **High stroke risk detected.** Immediate clinical evaluation recommended.")
                 elif risk_label == "Medium":
@@ -196,7 +194,7 @@ with col2:
 
                 st.divider()
 
-                # ── SHAP waterfall chart ──────────────────────────────────
+                #SHAP waterfall chart
                 st.subheader("🔍 SHAP Feature Explanation")
                 st.caption("Red bars increase stroke risk · Blue bars decrease stroke risk")
 
@@ -217,7 +215,7 @@ with col2:
                 ax.set_title(f"Top feature contributions\nBase value: {base_value:.3f}", fontsize=11)
                 ax.tick_params(axis='y', labelsize=9)
 
-                # Value labels on bars
+                # Value labels 
                 for bar, val in zip(bars, values_sorted):
                     ax.text(
                         val + (0.01 if val >= 0 else -0.01),
@@ -243,7 +241,7 @@ with col2:
                 st.error(f"❌ Error: {str(e)}")
 
     else:
-        # Placeholder before prediction
+        # Placeholder
         st.info("👈 Fill in patient details in the sidebar and click **Predict Stroke Risk** to see results.")
 
         st.subheader("ℹ️ About this tool")
@@ -265,6 +263,6 @@ with col2:
         **⚠️ Disclaimer:** This tool is for educational purposes only and should not replace professional medical diagnosis.
         """)
 
-# ── Footer ────────────────────────────────────────────────────────────────────
+#Footer 
 st.divider()
 st.caption("Built with XGBoost · FastAPI · Streamlit · SHAP | Stroke Prediction ML Project")
